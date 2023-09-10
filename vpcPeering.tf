@@ -1,6 +1,7 @@
 ############################ VPC Peering ############################
 
 resource "aws_vpc_peering_connection" "hubSpoke1" {
+  count       = var.services_vpc_enable && var.spoke_vpc_enable ? 1 : 0
   peer_vpc_id = aws_vpc.f5-xc-spoke.id
   vpc_id      = aws_vpc.f5-xc-services.id
   auto_accept = true
@@ -12,6 +13,7 @@ resource "aws_vpc_peering_connection" "hubSpoke1" {
 }
 
 resource "aws_vpc_peering_connection" "hubSpoke2" {
+  count       = var.services_vpc_enable && var.spoke2_vpc_enable ? 1 : 0
   peer_vpc_id = aws_vpc.f5-xc-spoke2.id
   vpc_id      = aws_vpc.f5-xc-services.id
   auto_accept = true
@@ -25,6 +27,7 @@ resource "aws_vpc_peering_connection" "hubSpoke2" {
 ############################ Routes ############################
 
 resource "aws_route" "hub-to-spoke1" {
+  count                     = var.services_vpc_enable && var.spoke_vpc_enable ? 1 : 0
   route_table_id            = aws_route_table.f5-xc-services-vpc-external-rt.id
   destination_cidr_block    = var.spoke_vpc_cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.hubSpoke1.id
@@ -32,6 +35,7 @@ resource "aws_route" "hub-to-spoke1" {
 }
 
 resource "aws_route" "hub-to-spoke2" {
+  count                     = var.services_vpc_enable && var.spoke2_vpc_enable ? 1 : 0
   route_table_id            = aws_route_table.f5-xc-services-vpc-external-rt.id
   destination_cidr_block    = var.spoke2_vpc_cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.hubSpoke2.id
@@ -39,6 +43,7 @@ resource "aws_route" "hub-to-spoke2" {
 }
 
 resource "aws_route" "spoke1-external-to-hub" {
+  count                     = var.services_vpc_enable && var.spoke_vpc_enable ? 1 : 0
   route_table_id            = aws_route_table.f5-xc-spoke-vpc-external-rt.id
   destination_cidr_block    = var.services_vpc_cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.hubSpoke1.id
@@ -46,6 +51,7 @@ resource "aws_route" "spoke1-external-to-hub" {
 }
 
 resource "aws_route" "spoke1-workload-to-hub" {
+  count                     = var.services_vpc_enable && var.spoke_vpc_enable ? 1 : 0
   route_table_id            = aws_route_table.f5-xc-spoke-vpc-workload-rt.id
   destination_cidr_block    = var.services_vpc_cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.hubSpoke1.id
@@ -53,6 +59,7 @@ resource "aws_route" "spoke1-workload-to-hub" {
 }
 
 resource "aws_route" "spoke2-external-to-hub" {
+  count                     = var.services_vpc_enable && var.spoke2_vpc_enable ? 1 : 0
   route_table_id            = aws_route_table.f5-xc-spoke2-vpc-external-rt.id
   destination_cidr_block    = var.services_vpc_cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.hubSpoke2.id
@@ -60,6 +67,7 @@ resource "aws_route" "spoke2-external-to-hub" {
 }
 
 resource "aws_route" "spoke2-workload-to-hub" {
+  count                     = var.services_vpc_enable && var.spoke2_vpc_enable ? 1 : 0
   route_table_id            = aws_route_table.f5-xc-spoke2-vpc-workload-rt.id
   destination_cidr_block    = var.services_vpc_cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.hubSpoke2.id

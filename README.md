@@ -90,12 +90,15 @@ No modules.
 | <a name="input_create_jumphost"></a> [create\_jumphost](#input\_create\_jumphost) | Create a jumphost for troubleshooting purposes (true or false) | `bool` | n/a | yes |
 | <a name="input_project_prefix"></a> [project\_prefix](#input\_project\_prefix) | projectPrefix name for tagging | `string` | n/a | yes |
 | <a name="input_resource_owner"></a> [resource\_owner](#input\_resource\_owner) | Owner of the deployment for tagging purposes | `string` | n/a | yes |
+| <a name="input_services_enable"></a> [services\_vpc\_enable](#input\_services\_vpc\_enable) | Build the Services VPC | `bool` | true | no |
 | <a name="input_services_vpc"></a> [services\_vpc](#input\_services\_vpc) | Services VPC | `map(any)` | n/a | yes |
 | <a name="input_services_vpc_cidr_block"></a> [services\_vpc\_cidr\_block](#input\_services\_vpc\_cidr\_block) | n/a | `string` | n/a | yes |
-| <a name="input_spoke2_vpc"></a> [spoke2\_vpc](#input\_spoke2\_vpc) | Spoke VPC | `map(any)` | n/a | yes |
-| <a name="input_spoke2_vpc_cidr_block"></a> [spoke2\_vpc\_cidr\_block](#input\_spoke2\_vpc\_cidr\_block) | n/a | `string` | n/a | yes |
+| <a name="input_spoke_enable"></a> [spoke\_vpc\_enable](#input\_spoke\_vpc\_enable) | Build the Spoke VPC | `bool` | true | no |
 | <a name="input_spoke_vpc"></a> [spoke\_vpc](#input\_spoke\_vpc) | Spoke VPC | `map(any)` | n/a | yes |
 | <a name="input_spoke_vpc_cidr_block"></a> [spoke\_vpc\_cidr\_block](#input\_spoke\_vpc\_cidr\_block) | n/a | `string` | n/a | yes |
+| <a name="input_spoke2_enable"></a> [spoke2\_vpc\_enable](#input\_spoke2\_vpc\_enable) | Build the Spoke 2 VPC | `bool` | true | no |
+| <a name="input_spoke2_vpc"></a> [spoke2\_vpc](#input\_spoke2\_vpc) | Spoke VPC | `map(any)` | n/a | yes |
+| <a name="input_spoke2_vpc_cidr_block"></a> [spoke2\_vpc\_cidr\_block](#input\_spoke2\_vpc\_cidr\_block) | n/a | `string` | n/a | yes |
 | <a name="input_ssh_key"></a> [ssh\_key](#input\_ssh\_key) | SSH public key used to create an EC2 keypair | `string` | n/a | yes |
 | <a name="input_trusted_ip"></a> [trusted\_ip](#input\_trusted\_ip) | IP to allow external access | `string` | n/a | yes |
 

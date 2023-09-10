@@ -1,5 +1,6 @@
 
 resource "aws_vpc" "f5-xc-services" {
+  count                = var.services_vpc_enable ? 1 : 0
   cidr_block           = var.services_vpc_cidr_block
   instance_tenancy     = "default"
   enable_dns_support   = "true"
@@ -15,7 +16,9 @@ resource "aws_vpc" "f5-xc-services" {
 locals {
 
 }
+
 resource "aws_subnet" "f5-xc-services-external" {
+  count                   = var.services_vpc_enable ? 1 : 0
   vpc_id                  = aws_vpc.f5-xc-services.id
   for_each                = var.services_vpc.external
   cidr_block              = each.value.cidr
@@ -29,6 +32,7 @@ resource "aws_subnet" "f5-xc-services-external" {
 }
 
 resource "aws_subnet" "f5-xc-services-internal" {
+  count                   = var.services_vpc_enable ? 1 : 0
   vpc_id                  = aws_vpc.f5-xc-services.id
   for_each                = var.services_vpc.internal
   cidr_block              = each.value.cidr
@@ -42,6 +46,7 @@ resource "aws_subnet" "f5-xc-services-internal" {
 }
 
 resource "aws_subnet" "f5-xc-services-workload" {
+  count                   = var.services_vpc_enable ? 1 : 0
   vpc_id                  = aws_vpc.f5-xc-services.id
   for_each                = var.services_vpc.workload
   cidr_block              = each.value.cidr
@@ -54,8 +59,8 @@ resource "aws_subnet" "f5-xc-services-workload" {
   }
 }
 
-
 resource "aws_internet_gateway" "f5-xc-services-vpc-gw" {
+  count  = var.services_vpc_enable ? 1 : 0
   vpc_id = aws_vpc.f5-xc-services.id
 
   tags = {
@@ -65,6 +70,7 @@ resource "aws_internet_gateway" "f5-xc-services-vpc-gw" {
 }
 
 resource "aws_route_table" "f5-xc-services-vpc-external-rt" {
+  count  = var.services_vpc_enable ? 1 : 0
   vpc_id = aws_vpc.f5-xc-services.id
 
   tags = {
@@ -74,6 +80,7 @@ resource "aws_route_table" "f5-xc-services-vpc-external-rt" {
 }
 
 resource "aws_route" "internet-rt" {
+  count                  = var.services_vpc_enable ? 1 : 0
   route_table_id         = aws_route_table.f5-xc-services-vpc-external-rt.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.f5-xc-services-vpc-gw.id
@@ -81,12 +88,14 @@ resource "aws_route" "internet-rt" {
 }
 
 resource "aws_route_table_association" "f5-xc-external-association" {
+  count          = var.services_vpc_enable ? 1 : 0
   for_each       = aws_subnet.f5-xc-services-external
   subnet_id      = each.value.id
   route_table_id = aws_route_table.f5-xc-services-vpc-external-rt.id
 }
 
 resource "aws_security_group" "f5-xc-vpc" {
+  count  = var.services_vpc_enable ? 1 : 0
   name   = "${var.project_prefix}-f5-xc-sg"
   vpc_id = aws_vpc.f5-xc-services.id
 
@@ -111,7 +120,6 @@ resource "aws_security_group" "f5-xc-vpc" {
     cidr_blocks = ["192.168.0.0/16"]
   }
 
-
   ingress {
     from_port   = 0
     to_port     = 0
@@ -133,6 +141,7 @@ resource "aws_security_group" "f5-xc-vpc" {
 }
 
 resource "aws_network_acl_rule" "tcp_53" {
+  count          = var.services_vpc_enable ? 1 : 0
   network_acl_id = aws_vpc.f5-xc-services.default_network_acl_id
   rule_number    = 90
   egress         = false
@@ -144,6 +153,7 @@ resource "aws_network_acl_rule" "tcp_53" {
 }
 
 resource "aws_network_acl_rule" "udp_53" {
+  count          = var.services_vpc_enable ? 1 : 0
   network_acl_id = aws_vpc.f5-xc-services.default_network_acl_id
   rule_number    = 91
   egress         = false
@@ -155,6 +165,7 @@ resource "aws_network_acl_rule" "udp_53" {
 }
 
 resource "aws_network_acl_rule" "tcp_53-2" {
+  count          = var.services_vpc_enable ? 1 : 0
   network_acl_id = aws_vpc.f5-xc-services.default_network_acl_id
   rule_number    = 92
   egress         = false
@@ -166,6 +177,7 @@ resource "aws_network_acl_rule" "tcp_53-2" {
 }
 
 resource "aws_network_acl_rule" "udp_53-2" {
+  count          = var.services_vpc_enable ? 1 : 0
   network_acl_id = aws_vpc.f5-xc-services.default_network_acl_id
   rule_number    = 93
   egress         = false
@@ -176,8 +188,8 @@ resource "aws_network_acl_rule" "udp_53-2" {
   to_port        = 53
 }
 
-
 resource "aws_network_acl_rule" "deny_tcp_53" {
+  count          = var.services_vpc_enable ? 1 : 0
   network_acl_id = aws_vpc.f5-xc-services.default_network_acl_id
   rule_number    = 98
   egress         = false
@@ -189,6 +201,7 @@ resource "aws_network_acl_rule" "deny_tcp_53" {
 }
 
 resource "aws_network_acl_rule" "deny_udp_53" {
+  count          = var.services_vpc_enable ? 1 : 0
   network_acl_id = aws_vpc.f5-xc-services.default_network_acl_id
   rule_number    = 99
   egress         = false
