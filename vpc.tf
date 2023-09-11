@@ -19,7 +19,7 @@ locals {
 
 resource "aws_subnet" "f5-xc-services-external" {
   vpc_id                  = aws_vpc.f5-xc-services.id
-  for_each                = var.services_vpc.external
+  for_each                = try(var.services_vpc.external, [])
   cidr_block              = each.value.cidr
   map_public_ip_on_launch = "true"
   availability_zone       = var.services_vpc.azs[each.key]["az"]
@@ -32,7 +32,7 @@ resource "aws_subnet" "f5-xc-services-external" {
 
 resource "aws_subnet" "f5-xc-services-internal" {
   vpc_id                  = aws_vpc.f5-xc-services.id
-  for_each                = var.services_vpc.internal
+  for_each                = try(var.services_vpc.internal, [])
   cidr_block              = each.value.cidr
   map_public_ip_on_launch = "false"
   availability_zone       = var.services_vpc.azs[each.key]["az"]
@@ -45,7 +45,7 @@ resource "aws_subnet" "f5-xc-services-internal" {
 
 resource "aws_subnet" "f5-xc-services-workload" {
   vpc_id                  = aws_vpc.f5-xc-services.id
-  for_each                = var.services_vpc.workload
+  for_each                = try(var.services_vpc.workload, [])
   cidr_block              = each.value.cidr
   map_public_ip_on_launch = "false"
   availability_zone       = var.services_vpc.azs[each.key]["az"]

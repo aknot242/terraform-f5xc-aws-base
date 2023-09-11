@@ -15,7 +15,7 @@ resource "aws_vpc" "f5-xc-spoke" {
 
 resource "aws_subnet" "f5-xc-spoke-external" {
   vpc_id                  = aws_vpc.f5-xc-spoke.id
-  for_each                = var.spoke_vpc.external
+  for_each                = try(var.spoke_vpc.external, [])
   cidr_block              = each.value.cidr
   map_public_ip_on_launch = "true"
   availability_zone       = var.spoke_vpc.azs[each.key]["az"]
@@ -28,7 +28,7 @@ resource "aws_subnet" "f5-xc-spoke-external" {
 
 resource "aws_subnet" "f5-xc-spoke-internal" {
   vpc_id                  = aws_vpc.f5-xc-spoke.id
-  for_each                = var.spoke_vpc.internal
+  for_each                = try(var.spoke_vpc.internal, [])
   cidr_block              = each.value.cidr
   map_public_ip_on_launch = "false"
   availability_zone       = var.spoke_vpc.azs[each.key]["az"]
@@ -41,7 +41,7 @@ resource "aws_subnet" "f5-xc-spoke-internal" {
 
 resource "aws_subnet" "f5-xc-spoke-workload" {
   vpc_id                  = aws_vpc.f5-xc-spoke.id
-  for_each                = var.spoke_vpc.workload
+  for_each                = try(var.spoke_vpc.workload, [])
   cidr_block              = each.value.cidr
   map_public_ip_on_launch = "false"
   availability_zone       = var.spoke_vpc.azs[each.key]["az"]

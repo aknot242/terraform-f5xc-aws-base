@@ -26,6 +26,7 @@ variable "services_vpc_cidr_block" {
 variable "services_vpc" {
   description = "Services VPC"
   type        = map(any)
+  default     = {}
 }
 
 variable "spoke_vpc_cidr_block" {
@@ -36,6 +37,7 @@ variable "spoke_vpc_cidr_block" {
 variable "spoke_vpc" {
   description = "Spoke VPC"
   type        = map(any)
+  default     = {}
 }
 
 variable "spoke2_vpc_cidr_block" {
@@ -46,6 +48,7 @@ variable "spoke2_vpc_cidr_block" {
 variable "spoke2_vpc" {
   description = "Spoke VPC 2"
   type        = map(any)
+  default     = {}
 }
 
 variable "create_jumphost" {
