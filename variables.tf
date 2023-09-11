@@ -18,14 +18,9 @@ variable "aws_region" {
   type        = string
 }
 
-variable "services_vpc_enable" {
-  description = "Build Services VPC"
-  default     = true
-  type        = bool
-}
-
 variable "services_vpc_cidr_block" {
-  type = string
+  type    = string
+  default = null
 }
 
 variable "services_vpc" {
@@ -33,14 +28,9 @@ variable "services_vpc" {
   type        = map(any)
 }
 
-variable "spoke_vpc_enable" {
-  description = "Build Spoke VPC"
-  default     = true
-  type        = bool
-}
-
 variable "spoke_vpc_cidr_block" {
-  type = string
+  type    = string
+  default = null
 }
 
 variable "spoke_vpc" {
@@ -48,14 +38,9 @@ variable "spoke_vpc" {
   type        = map(any)
 }
 
-variable "spoke2_vpc_enable" {
-  description = "Build Spoke VPC 2"
-  default     = true
-  type        = bool
-}
-
 variable "spoke2_vpc_cidr_block" {
-  type = string
+  type    = string
+  default = null
 }
 
 variable "spoke2_vpc" {

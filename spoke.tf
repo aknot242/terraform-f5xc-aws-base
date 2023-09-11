@@ -1,6 +1,6 @@
 
 resource "aws_vpc" "f5-xc-spoke" {
-  count                = var.spoke_vpc_enable ? 1 : 0
+  count                = var.spoke_vpc_cidr_block != null ? 1 : 0
   cidr_block           = var.spoke_vpc_cidr_block
   instance_tenancy     = "default"
   enable_dns_support   = "true"
@@ -14,7 +14,6 @@ resource "aws_vpc" "f5-xc-spoke" {
 }
 
 resource "aws_subnet" "f5-xc-spoke-external" {
-  count                   = var.spoke_vpc_enable ? 1 : 0
   vpc_id                  = aws_vpc.f5-xc-spoke.id
   for_each                = var.spoke_vpc.external
   cidr_block              = each.value.cidr
@@ -28,7 +27,6 @@ resource "aws_subnet" "f5-xc-spoke-external" {
 }
 
 resource "aws_subnet" "f5-xc-spoke-internal" {
-  count                   = var.spoke_vpc_enable ? 1 : 0
   vpc_id                  = aws_vpc.f5-xc-spoke.id
   for_each                = var.spoke_vpc.internal
   cidr_block              = each.value.cidr
@@ -42,7 +40,6 @@ resource "aws_subnet" "f5-xc-spoke-internal" {
 }
 
 resource "aws_subnet" "f5-xc-spoke-workload" {
-  count                   = var.spoke_vpc_enable ? 1 : 0
   vpc_id                  = aws_vpc.f5-xc-spoke.id
   for_each                = var.spoke_vpc.workload
   cidr_block              = each.value.cidr
@@ -56,7 +53,7 @@ resource "aws_subnet" "f5-xc-spoke-workload" {
 }
 
 resource "aws_internet_gateway" "f5-xc-spoke-vpc-gw" {
-  count  = var.spoke_vpc_enable ? 1 : 0
+  count  = try(aws_vpc.f5-xc-spoke.id, false) ? 1 : 0
   vpc_id = aws_vpc.f5-xc-spoke.id
 
   tags = {
@@ -66,7 +63,7 @@ resource "aws_internet_gateway" "f5-xc-spoke-vpc-gw" {
 }
 
 resource "aws_route_table" "f5-xc-spoke-vpc-external-rt" {
-  count  = var.spoke_vpc_enable ? 1 : 0
+  count  = try(aws_vpc.f5-xc-spoke.id, false) ? 1 : 0
   vpc_id = aws_vpc.f5-xc-spoke.id
 
   tags = {
@@ -76,7 +73,7 @@ resource "aws_route_table" "f5-xc-spoke-vpc-external-rt" {
 }
 
 resource "aws_route" "spoke-internet-rt" {
-  count                  = var.spoke_vpc_enable ? 1 : 0
+  count                  = try(aws_internet_gateway.f5-xc-spoke-vpc-gw.id, false) ? 1 : 0
   route_table_id         = aws_route_table.f5-xc-spoke-vpc-external-rt.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.f5-xc-spoke-vpc-gw.id
@@ -84,14 +81,13 @@ resource "aws_route" "spoke-internet-rt" {
 }
 
 resource "aws_route_table_association" "f5-xc-spoke-external-association" {
-  count          = var.spoke_vpc_enable ? 1 : 0
   for_each       = aws_subnet.f5-xc-spoke-external
   subnet_id      = each.value.id
   route_table_id = aws_route_table.f5-xc-spoke-vpc-external-rt.id
 }
 
 resource "aws_eip" "f5-xc-spoke-nat" {
-  count = var.spoke_vpc_enable ? 1 : 0
+  count = aws_subnet.f5-xc-spoke-external ? 1 : 0
   vpc   = true
 
   tags = {
@@ -101,7 +97,7 @@ resource "aws_eip" "f5-xc-spoke-nat" {
 }
 
 resource "aws_nat_gateway" "f5-xc-spoke-vpc-nat" {
-  count         = var.spoke_vpc_enable ? 1 : 0
+  count         = try(var.spoke_vpc.external, false) ? 1 : 0
   allocation_id = aws_eip.f5-xc-spoke-nat.id
   subnet_id     = aws_subnet.f5-xc-spoke-external["az1"].id
   depends_on    = [aws_internet_gateway.f5-xc-spoke-vpc-gw]
@@ -113,7 +109,7 @@ resource "aws_nat_gateway" "f5-xc-spoke-vpc-nat" {
 }
 
 resource "aws_route_table" "f5-xc-spoke-vpc-workload-rt" {
-  count  = var.spoke_vpc_enable ? 1 : 0
+  count  = try(aws_vpc.f5-xc-spoke.id, false) ? 1 : 0
   vpc_id = aws_vpc.f5-xc-spoke.id
 
   tags = {
@@ -123,7 +119,7 @@ resource "aws_route_table" "f5-xc-spoke-vpc-workload-rt" {
 }
 
 resource "aws_route" "spoke-workload-rt" {
-  count                  = var.spoke_vpc_enable ? 1 : 0
+  count                  = try(aws_nat_gateway.f5-xc-spoke-vpc-nat.id, false) ? 1 : 0
   route_table_id         = aws_route_table.f5-xc-spoke-vpc-workload-rt.id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.f5-xc-spoke-vpc-nat.id
@@ -131,14 +127,13 @@ resource "aws_route" "spoke-workload-rt" {
 }
 
 resource "aws_route_table_association" "f5-xc-spoke-workload-association" {
-  count          = var.spoke_vpc_enable ? 1 : 0
   for_each       = aws_subnet.f5-xc-spoke-workload
   subnet_id      = each.value.id
   route_table_id = aws_route_table.f5-xc-spoke-vpc-workload-rt.id
 }
 
 resource "aws_security_group" "f5-xc-spoke-vpc" {
-  count  = var.spoke_vpc_enable ? 1 : 0
+  count  = try(aws_vpc.f5-xc-spoke.id, false) ? 1 : 0
   name   = "${var.project_prefix}-f5-xc-spoke-sg"
   vpc_id = aws_vpc.f5-xc-spoke.id
 
@@ -215,7 +210,7 @@ data "aws_ami" "ubuntu" {
 ############################ Compute ############################
 
 resource "aws_instance" "jumphost" {
-  count                  = var.spoke_vpc_enable && var.create_jumphost == true ? 1 : 0
+  count                  = try(aws_security_group.f5-xc-spoke-vpc.id, false) && var.create_jumphost == true ? 1 : 0
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t3.large"
   subnet_id              = aws_subnet.f5-xc-spoke-external["az1"].id
