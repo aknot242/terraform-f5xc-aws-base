@@ -47,7 +47,6 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_ami_search_name"></a> [ami\_search\_name](#input\_ami\_search\_name) | AWS AMI search filter to find correct image (Ubuntu) for region | `string` | `"ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-20230112"` | no |
 | <a name="input_auto_trust_localip"></a> [auto\_trust\_localip](#input\_auto\_trust\_localip) | if true, query ifconfig.io for public ip of terraform host. | `bool` | `false` | no |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | aws region | `string` | n/a | yes |
 | <a name="input_create_jumphost"></a> [create\_jumphost](#input\_create\_jumphost) | Create a jumphost for troubleshooting purposes (true or false) | `bool` | n/a | yes |
